@@ -101,9 +101,61 @@ class All_model extends CI_Model
         $this->db->set('owned_user_id', $user_id);
         $this->db->set('room_id', $room_id);
         $this->db->set('post_image_url', 'https://pbs.twimg.com/media/EA9UJBjU4AAdkCm?format=jpg&name=medium');
+        $this->db->set('created_date', 'NOW()', false);
         $this->db->insert('post');
 
         return $this->db->insert_id();
+    }
+
+    public function get_posts_by_room_id($room_id)
+    {
+        $this->db->select('post_id, post_image_url');
+        $this->db->from('post');
+        $this->db->where('room_id', $room_id);
+
+        $rtn = $this->db->get()->result_array();
+        return $rtn;
+    }
+
+    public function get_user_id_by_post_id($post_id)
+    {
+        $this->db->select('owned_user_id');
+        $this->db->from('post');
+        $this->db->where('post_id', $post_id);
+
+        $rtn = $this->db->get()->row_array();
+        return $rtn;
+    }
+
+    public function get_user_point_by_room_id_and_user_id($room_id, $user_id)
+    {
+        $this->db->select('point');
+        $this->db->from('room_p');
+        $this->db->where('user_id', $user_id);
+        $this->db->where('room_id', $room_id);
+
+        $rtn = $this->db->get()->row_array();
+        return $rtn;
+    }
+
+    public function get_user_info_for_post_detail($user_id)
+    {
+        $this->db->select('nickname, image_url');
+        $this->db->from('member');
+        $this->db->where('user_id', $user_id);
+
+        $rtn = $this->db->get()->row_array();
+        return $rtn;
+    }
+
+    public function get_post_info_by_post_id($post_id)
+    {
+        $this->db->select('post_image_url, created_date, status');
+        $this->db->from('post');
+        $this->db->where('post_id', $post_id);
+
+        $rtn = $this->db->get()->row_array();
+        return $rtn;
     }
 
 }

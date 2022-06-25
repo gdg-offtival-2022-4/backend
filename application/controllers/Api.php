@@ -192,7 +192,58 @@ class Api extends CI_Controller
 
         $post_id = $this->all_model->create_post($arr);
 
-        echo json_encode(strval($post_id));
+        echo json_encode(array( 'post_id' => strval($post_id)));
+    }
+
+    public function room_post()
+    {
+        $this->load->model('all_model');
+
+        $room_id = $this->input->get("room_id");
+
+        $posts = $this->all_model->get_posts_by_room_id($room_id);
+
+        echo json_encode($posts);
+
+    }
+
+    public function room_post_detail()
+    {
+        $this->load->model('all_model');
+
+        $room_id = $this->input->get("room_id");
+        $post_id = $this->input->get("post_id");
+
+        /**
+         * {
+        "user": {
+        "point": 23,
+        "nickname": "asd",
+        "image_url": "http://asd"
+        },
+        "post_image_url": "http://",
+        "created_date": "2022년 06월 22일",
+        "status": "PENDING",
+        "up": 1,
+        "down": 2
+        }
+         */
+        $user_id = $this->all_model->get_user_id_by_post_id($post_id);
+        $point = $this->all_model->get_user_point_by_room_id_and_user_id($room_id, $user_id['owned_user_id']);
+        $user = $this->all_model->get_user_info_for_post_detail($user_id['owned_user_id']);
+        $user['point'] = $point['point'];
+        $post_info = $this->all_model->get_post_info_by_post_id($post_id);
+
+        $result = array(
+            "user" => $user,
+            "post_image_url" => $post_info['post_image_url'],
+            "created_date" => $post_info['created_date'],
+            "status" => $post_info['status'],
+            "up" => 1,
+            "down" => 2
+        );
+
+        echo json_encode($result);
     }
 
 }
