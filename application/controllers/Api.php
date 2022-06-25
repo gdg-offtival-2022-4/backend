@@ -123,9 +123,76 @@ class Api extends CI_Controller
             $user_info = $this->all_model->get_user_info($room_rank[$i]['user_id']);
             $room_rank[$i]['user_image_url'] = $user_info['image_url'];
             $room_rank[$i]['nickname'] = $user_info['nickname'];
+            $room_rank[$i]['rank'] = $i + 1;
         }
 
         echo json_encode($room_rank);
+    }
+
+    public function room_rank_detail()
+    {
+        $this->load->model('all_model');
+
+        $user_id = $this->input->get("user_id");
+        $room_id = $this->input->get("room_id");
+
+        $user_info = $this->all_model->get_user_info($user_id);
+        $user_info_sub = $this->room_rank_detail_sub($user_id, $room_id);
+
+        $user_info['rank'] = $user_info_sub['rank'];
+        $user_info['point'] = $user_info_sub['point'];
+
+        $posts = $this->all_model->get_posts_by_user_id($user_id);
+
+        $result = array(
+            "user" => $user_info,
+            "posts" => $posts
+        );
+        echo json_encode($result);
+    }
+
+    private function room_rank_detail_sub($user_id, $room_id)
+    {
+        $this->load->model('all_model');
+
+        $room_rank = $this->all_model->get_room_rank($room_id);
+
+        for ($i = 0; $i < count($room_rank); $i++) {
+            $user_info = $this->all_model->get_user_info($room_rank[$i]['user_id']);
+            $room_rank[$i]['user_image_url'] = $user_info['image_url'];
+            $room_rank[$i]['nickname'] = $user_info['nickname'];
+            $room_rank[$i]['rank'] = $i + 1;
+        }
+
+        for ($i = 0; $i < count($room_rank); $i++) {
+            if ($room_rank[$i]['user_id'] == $user_id) {
+                $rank = $room_rank[$i]['rank'];
+                $point = $room_rank[$i]['point'];
+
+                return array(
+                    'rank' => $rank,
+                    'point' => $point
+                );
+            }
+        }
+    }
+
+    public function post()
+    {
+        $this->load->model('all_model');
+
+        $image_url = $_FILES['image_url'];
+        $user_id = $this->input->post("user_id");
+        $room_id = $this->input->post("room_id");
+
+        $arr = array(
+            'user_id' => $user_id,
+            'room_id' => $room_id
+        );
+
+        $post_id = $this->all_model->create_post($arr);
+
+        echo json_encode(strval($post_id));
     }
 
 }

@@ -68,6 +68,7 @@ class All_model extends CI_Model
         $this->db->select('*');
         $this->db->from('room_p');
         $this->db->where('room_id', $room_id);
+        $this->db->order_by('point', 'DESC');
 
         $rtn = $this->db->get()->result_array();
         return $rtn;
@@ -81,6 +82,28 @@ class All_model extends CI_Model
 
         $rtn = $this->db->get()->row_array();
         return $rtn;
+    }
+
+    public function get_posts_by_user_id($user_id)
+    {
+        $this->db->select('post_id, post_image_url, status');
+        $this->db->from('post');
+        $this->db->where('owned_user_id', $user_id);
+
+        $rtn = $this->db->get()->result_array();
+        return $rtn;
+    }
+
+    public function create_post($attr=Array())
+    {
+        extract($attr);
+
+        $this->db->set('owned_user_id', $user_id);
+        $this->db->set('room_id', $room_id);
+        $this->db->set('post_image_url', 'https://pbs.twimg.com/media/EA9UJBjU4AAdkCm?format=jpg&name=medium');
+        $this->db->insert('post');
+
+        return $this->db->insert_id();
     }
 
 }
