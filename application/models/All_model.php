@@ -50,6 +50,16 @@ class All_model extends CI_Model
         return $rtn;
     }
 
+    public function get_profile_images($room_id)
+    {
+        $this->db->select('member.image_url');
+        $this->db->from('room_p');
+        $this->db->join('member', 'room_p.user_id=member.user_id', 'inner');
+
+        $rtn = $this->db->get()->result_array();
+        return $rtn;
+    }
+
 
     public function join_room($attr = array())
     {
@@ -67,6 +77,7 @@ class All_model extends CI_Model
     {
         $this->db->select('*');
         $this->db->from('room_p');
+        $this->db->from('member', 'member.user_id=room_p.user_id', 'inner');
         $this->db->where('room_id', $room_id);
         $this->db->order_by('point', 'DESC');
 
@@ -94,7 +105,7 @@ class All_model extends CI_Model
         return $rtn;
     }
 
-    public function create_post($attr=Array())
+    public function create_post($attr = array())
     {
         extract($attr);
 
@@ -158,7 +169,7 @@ class All_model extends CI_Model
         return $rtn;
     }
 
-    public function update_post_up_and_down($arr=array())
+    public function update_post_up_and_down($arr = array())
     {
         extract($arr);
 

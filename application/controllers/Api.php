@@ -131,14 +131,13 @@ class Api extends CI_Controller
 
         $main_posts = $this->all_model->get_main_posts();
 
-        $temp_image_urls = array(
-            "https://mblogthumb-phinf.pstatic.net/MjAxOTA4MTdfMTc5/MDAxNTY2MDA3ODMwMDQ2.rJge1pGaPjaNLIAfDlcqT29JE7_eSsaBzf1l8oGTPTQg.2XKoYzxuCcpBR33UchGAn_GLJmi-699tPurA0vue_mQg.JPEG.yamasa_studio/야탑역사진관야탑사진관증명사진0171.jpg?type=w800",
-            "https://img.hankyung.com/photo/201904/01.19372617.1.jpg",
-            "https://dispatch.cdnser.be/wp-content/uploads/2017/02/8f928ac94dabf0f77af2f7f53a240253.jpg"
-        );
 
         for ($i = 0; $i < count($main_posts); $i++) {
-            $main_posts[$i]['user_image_urls'] = $temp_image_urls;
+            $profile_images = $this->all_model->get_profile_images($main_posts[$i]['room_id']);
+            $images = array(
+                $profile_images[0]['image_url'], $profile_images[1]['image_url'], $profile_images[2]['image_url']
+            );
+            $main_posts[$i]['user_image_urls'] = $images;
         }
 
         echo json_encode($main_posts);
