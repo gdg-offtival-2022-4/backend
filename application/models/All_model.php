@@ -2,7 +2,7 @@
 
 class All_model extends CI_Model
 {
-    public function create_user($attr=Array())
+    public function create_user($attr = array())
     {
         extract($attr);
 
@@ -15,7 +15,7 @@ class All_model extends CI_Model
         return $this->db->insert_id();
     }
 
-    public function validate_login($attr=Array())
+    public function validate_login($attr = array())
     {
         extract($attr);
 
@@ -29,7 +29,7 @@ class All_model extends CI_Model
         return $rtn;
     }
 
-    public function create_room($attr=Array())
+    public function create_room($attr = array())
     {
         extract($attr);
 
@@ -50,7 +50,8 @@ class All_model extends CI_Model
         return $rtn;
     }
 
-    public function join_room($attr=Array())
+
+    public function join_room($attr = array())
     {
         extract($attr);
 
@@ -60,6 +61,26 @@ class All_model extends CI_Model
         $this->db->insert('room_p');
 
         return true;
+    }
+
+    public function get_room_rank($room_id)
+    {
+        $this->db->select('*');
+        $this->db->from('room_p');
+        $this->db->where('room_id', $room_id);
+
+        $rtn = $this->db->get()->result_array();
+        return $rtn;
+    }
+
+    public function get_user_info($user_id)
+    {
+        $this->db->select('*');
+        $this->db->from('member');
+        $this->db->where('user_id', $user_id);
+
+        $rtn = $this->db->get()->row_array();
+        return $rtn;
     }
 
 }
