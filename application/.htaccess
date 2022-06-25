@@ -1,7 +1,12 @@
 <IfModule mod_rewrite.c>
-  RewriteEngine On
-  #RewriteBase /
+RewriteEngine on
 
-  RewriteCond %{REQUEST_FILENAME} !-f
-  RewriteRule ^ index.php [QSA,L]
+RewriteCond %{REQUEST_URI} !^(/index\.php|/upload/|/robots\.txt|/favicon\.ico)
+
+#파일 또는 폴더 존재 하지 않을 시 rule 적용
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+
+#codeigniter의 기본 rule(index.php로 시작)
+RewriteRule ^(.*)$ index.php?$1 [L]
 </IfModule>

@@ -150,7 +150,7 @@ class All_model extends CI_Model
 
     public function get_post_info_by_post_id($post_id)
     {
-        $this->db->select('post_image_url, created_date, status');
+        $this->db->select('*');
         $this->db->from('post');
         $this->db->where('post_id', $post_id);
 
@@ -158,4 +158,33 @@ class All_model extends CI_Model
         return $rtn;
     }
 
+    public function update_post_up_and_down($arr=array())
+    {
+        extract($arr);
+
+        if ($is_up == 1) {
+            $this->db->set('up', 'up + 1', false);
+        } else {
+            $this->db->set('down', 'down + 1', false);
+        }
+        $this->db->where('post_id', $post_id);
+        $this->db->update('post');
+
+        $this->db->select('up, down');
+        $this->db->from('post');
+        $this->db->where('post_id', $post_id);
+
+        $rtn = $this->db->get()->row_array();
+        return $rtn;
+    }
+
+    public function get_room_info($room_id)
+    {
+        $this->db->select('*');
+        $this->db->from('room');
+        $this->db->where('room_id', $room_id);
+
+        $rtn = $this->db->get()->row_array();
+        return $rtn;
+    }
 }

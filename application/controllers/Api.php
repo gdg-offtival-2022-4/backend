@@ -11,13 +11,53 @@ class Api extends CI_Controller
 
     public function image()
     {
-        $image_url = $_FILES['image_url'];
 
-        $result = array(
-            "image_url" => "https://i.imgur.com/oMdVph0.jpeg"
+        if (isset($_FILES['image_url']) && $_FILES['image_url']['name'] != "") {
+            $file = $_FILES['image_url'];
+            $allowed_extensions = explode(',', "png,jpg,jpeg");
+            $max_file_size = 5242880;
+            $ext = substr($file['name'], strrpos($file['name'], '.') + 1); // 파일 확장자 반환
+
+            // 확장자 체크
+            if (!in_array($ext, $allowed_extensions)) {
+                http_error('업로드할 수 없는 확장자입니다.');
+            }
+
+            // 파일 크기 체크
+            if ($file['size'] >= $max_file_size) {
+                http_error('5MB 까지만 업로드 가능합니다.');
+            }
+
+            $timeNow = date("Y-m-d"); // 폴더명으로 사용할 현재 날짜
+            $dir = "./upload/$timeNow"; // 폴더 위치, 이름
+            $upload_dir = $dir . '/'; // 업로드 파일 저장 위치
+
+            // 현재 날짜를 이름으로 가진 폴더 없을경우 생성
+            if (is_dir($dir) != true) {
+                mkdir($dir, 0777, true);
+            }
+
+            $fileName = $this->uuidgen(); // 업로드될 파일 명
+            $path = $fileName . '.' . $ext;
+
+            $base_url = "http://ec2-13-209-15-60.ap-northeast-2.compute.amazonaws.com";
+            $full_url = $base_url . substr($upload_dir, 1) . $path;
+
+            if (move_uploaded_file($file['tmp_name'], $upload_dir . $path)) {
+                echo json_encode(array("image_url" => $full_url));
+            }
+        } else {
+            http_error('파일이 업로드되지 않았습니다.');
+        }
+    }
+
+    private function uuidgen()
+    {
+        return sprintf('%08x-%04x-%04x-%04x-%04x%08x',
+            mt_rand(0, 0xffffffff),
+            mt_rand(0, 0xffff), mt_rand(0, 0xffff), mt_rand(0, 0xffff),
+            mt_rand(0, 0xffff), mt_rand(0, 0xffffffff)
         );
-
-        echo json_encode($result);
     }
 
     public function login()
@@ -46,6 +86,10 @@ class Api extends CI_Controller
         $id = $this->input->post("id");
         $pw = $this->input->post("pw");
         $nickname = $this->input->post("nickname");
+
+        $id = str_replace('"', '', $id);
+        $pw = str_replace('"', '', $pw);
+        $nickname = str_replace('"', '', $nickname);
 
         $member_signup = array(
             "id" => $id,
@@ -88,7 +132,7 @@ class Api extends CI_Controller
         $main_posts = $this->all_model->get_main_posts();
 
         $temp_image_urls = array(
-          "https://mblogthumb-phinf.pstatic.net/MjAxOTA4MTdfMTc5/MDAxNTY2MDA3ODMwMDQ2.rJge1pGaPjaNLIAfDlcqT29JE7_eSsaBzf1l8oGTPTQg.2XKoYzxuCcpBR33UchGAn_GLJmi-699tPurA0vue_mQg.JPEG.yamasa_studio/야탑역사진관야탑사진관증명사진0171.jpg?type=w800",
+            "https://mblogthumb-phinf.pstatic.net/MjAxOTA4MTdfMTc5/MDAxNTY2MDA3ODMwMDQ2.rJge1pGaPjaNLIAfDlcqT29JE7_eSsaBzf1l8oGTPTQg.2XKoYzxuCcpBR33UchGAn_GLJmi-699tPurA0vue_mQg.JPEG.yamasa_studio/야탑역사진관야탑사진관증명사진0171.jpg?type=w800",
             "https://img.hankyung.com/photo/201904/01.19372617.1.jpg",
             "https://dispatch.cdnser.be/wp-content/uploads/2017/02/8f928ac94dabf0f77af2f7f53a240253.jpg"
         );
@@ -192,7 +236,7 @@ class Api extends CI_Controller
 
         $post_id = $this->all_model->create_post($arr);
 
-        echo json_encode(array( 'post_id' => strval($post_id)));
+        echo json_encode(array('post_id' => strval($post_id)));
     }
 
     public function room_post()
@@ -214,20 +258,6 @@ class Api extends CI_Controller
         $room_id = $this->input->get("room_id");
         $post_id = $this->input->get("post_id");
 
-        /**
-         * {
-        "user": {
-        "point": 23,
-        "nickname": "asd",
-        "image_url": "http://asd"
-        },
-        "post_image_url": "http://",
-        "created_date": "2022년 06월 22일",
-        "status": "PENDING",
-        "up": 1,
-        "down": 2
-        }
-         */
         $user_id = $this->all_model->get_user_id_by_post_id($post_id);
         $point = $this->all_model->get_user_point_by_room_id_and_user_id($room_id, $user_id['owned_user_id']);
         $user = $this->all_model->get_user_info_for_post_detail($user_id['owned_user_id']);
@@ -239,11 +269,33 @@ class Api extends CI_Controller
             "post_image_url" => $post_info['post_image_url'],
             "created_date" => $post_info['created_date'],
             "status" => $post_info['status'],
-            "up" => 1,
-            "down" => 2
+            "up" => $post_info['up'],
+            "down" => $post_info['down']
         );
 
         echo json_encode($result);
+    }
+
+    public function room_post_detail_up_down()
+    {
+        $this->load->model('all_model');
+
+        $arr = json_decode($this->input->raw_input_stream, true);
+
+        $result = $this->all_model->update_post_up_and_down($arr);
+
+        echo json_encode($result);
+    }
+
+    public function room_info()
+    {
+        $this->load->model('all_model');
+
+        $room_id = $this->input->get("room_id");
+
+        $attr = $this->all_model->get_room_info($room_id);
+
+        echo json_encode($attr);
     }
 
 }
