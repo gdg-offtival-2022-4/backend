@@ -2,7 +2,7 @@
 
 class All_model extends CI_Model
 {
-    public function save_user($attr=Array())
+    public function create_user($attr=Array())
     {
         extract($attr);
 
@@ -12,7 +12,7 @@ class All_model extends CI_Model
         $this->db->set('image_url', $image_url);
         $this->db->insert('member');
 
-        return true;
+        return $this->db->insert_id();
     }
 
     public function validate_login($attr=Array())
@@ -39,6 +39,27 @@ class All_model extends CI_Model
         $this->db->insert('room');
 
         return $this->db->insert_id();
+    }
+
+    public function get_main_posts()
+    {
+        $this->db->select('*');
+        $this->db->from('room');
+
+        $rtn = $this->db->get()->result_array();
+        return $rtn;
+    }
+
+    public function join_room($attr=Array())
+    {
+        extract($attr);
+
+        $this->db->set('user_id', $user_id);
+        $this->db->set('room_id', $room_id);
+        $this->db->set('participating', true);
+        $this->db->insert('room_p');
+
+        return true;
     }
 
 }

@@ -44,9 +44,13 @@ class Api extends CI_Controller
 
         $member_signup = json_decode($this->input->raw_input_stream, true);
 
-        $this->all_model->save_user($member_signup);
+        $user_id = $this->all_model->create_user($member_signup);
 
-        echo "success";
+        $arr = array(
+            "user_id" => $user_id
+        );
+
+        echo json_encode($arr);
     }
 
     public function room()
@@ -57,6 +61,37 @@ class Api extends CI_Controller
 
         $room_id = $this->all_model->create_room($room);
 
-        echo json_encode($room_id);
+        $arr = array(
+            "room_id" => $room_id
+        );
+
+        echo json_encode($arr);
     }
+
+    public function main()
+    {
+        $this->load->model('all_model');
+
+        $main_posts = $this->all_model->get_main_posts();
+
+        echo json_encode($main_posts);
+    }
+
+    public function room_join()
+    {
+        $this->load->model('all_model');
+
+        $room_join = json_decode($this->input->raw_input_stream, true);
+
+        $this->all_model->join_room($room_join);
+
+        echo "success";
+    }
+
+    public function room_rank()
+    {
+        $room_id = $this->input->get("room_id");
+        print_r($room_id);
+    }
+
 }
