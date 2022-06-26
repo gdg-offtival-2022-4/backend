@@ -11,10 +11,6 @@ class Api extends CI_Controller
 
     public function image()
     {
-        if (!isset($_FILES['image_url'])) {
-           return null;
-        }
-        if (isset($_FILES['image_url']) && $_FILES['image_url']['name'] != "") {
             $file = $_FILES['image_url'];
             $allowed_extensions = explode(',', "png,jpg,jpeg");
             $max_file_size = 5242880;
@@ -22,12 +18,14 @@ class Api extends CI_Controller
 
             // 확장자 체크
             if (!in_array($ext, $allowed_extensions)) {
-                http_error('업로드할 수 없는 확장자입니다.');
+                echo '업로드할 수 없는 확장자입니다.';
+                exit();
             }
 
             // 파일 크기 체크
             if ($file['size'] >= $max_file_size) {
-                http_error('5MB 까지만 업로드 가능합니다.');
+                echo '5MB 까지만 업로드 가능합니다.';
+                exit();
             }
 
             $timeNow = date("Y-m-d"); // 폴더명으로 사용할 현재 날짜
@@ -48,9 +46,6 @@ class Api extends CI_Controller
             if (move_uploaded_file($file['tmp_name'], $upload_dir . $path)) {
                 return $full_url;
             }
-        } else {
-            http_error('파일이 업로드되지 않았습니다.');
-        }
     }
 
     private function uuidgen()
