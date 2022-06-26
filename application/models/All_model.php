@@ -111,7 +111,7 @@ class All_model extends CI_Model
 
         $this->db->set('owned_user_id', $user_id);
         $this->db->set('room_id', $room_id);
-        $this->db->set('post_image_url', 'https://pbs.twimg.com/media/EA9UJBjU4AAdkCm?format=jpg&name=medium');
+        $this->db->set('post_image_url', $image_url);
         $this->db->set('created_date', 'NOW()', false);
         $this->db->insert('post');
 

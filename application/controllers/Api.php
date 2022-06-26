@@ -11,7 +11,9 @@ class Api extends CI_Controller
 
     public function image()
     {
-
+        if (!isset($_FILES['image_url'])) {
+           return null;
+        }
         if (isset($_FILES['image_url']) && $_FILES['image_url']['name'] != "") {
             $file = $_FILES['image_url'];
             $allowed_extensions = explode(',', "png,jpg,jpeg");
@@ -44,7 +46,7 @@ class Api extends CI_Controller
             $full_url = $base_url . substr($upload_dir, 1) . $path;
 
             if (move_uploaded_file($file['tmp_name'], $upload_dir . $path)) {
-                echo json_encode(array("image_url" => $full_url));
+                return $full_url;
             }
         } else {
             http_error('파일이 업로드되지 않았습니다.');
@@ -179,6 +181,8 @@ class Api extends CI_Controller
         $user_id = $this->input->get("user_id");
         $room_id = $this->input->get("room_id");
 
+//        $this->image();
+
         $user_info = $this->all_model->get_user_info($user_id);
         $user_info_sub = $this->room_rank_detail_sub($user_id, $room_id);
 
@@ -224,13 +228,18 @@ class Api extends CI_Controller
     {
         $this->load->model('all_model');
 
-        $image_url = $_FILES['image_url'];
         $user_id = $this->input->post("user_id");
         $room_id = $this->input->post("room_id");
+        $image_url = $this->image();
+
+        if ($image_url == null) {
+            echo $image_url;
+        }
 
         $arr = array(
-            'user_id' => $user_id,
-            'room_id' => $room_id
+            'user_id' => str_replace('"', '', $user_id),
+            'room_id' => str_replace('"', '', $room_id),
+            'image_url' => $image_url
         );
 
         $post_id = $this->all_model->create_post($arr);
@@ -246,7 +255,11 @@ class Api extends CI_Controller
 
         $posts = $this->all_model->get_posts_by_room_id($room_id);
 
-        echo json_encode($posts);
+        $rtn = array(
+            "data" => $posts
+        );
+
+        echo json_encode($rtn);
 
     }
 
