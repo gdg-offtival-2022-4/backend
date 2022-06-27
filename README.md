@@ -1,5 +1,6 @@
 # gdgbackend
-ㅇㅇ
+
+백엔드: PHP 7 / CodeIgniter 3 / AWS EC2
 
 
 피그마: https://www.figma.com/file/yClhrIK6nkMr4YBxEOOoqD/habit_rabbit_design?node-id=0%3A1   
