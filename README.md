@@ -60,11 +60,7 @@ create table if not exists room_p
 ```
 
 ### 클라이언트
-피그마: https://www.figma.com/file/yClhrIK6nkMr4YBxEOOoqD/habit_rabbit_design?node-id=0%3A1   
 클라이언트: https://github.com/gdg-offtival-2022-4/Habit-Challenge-Android
-
 
 ### 결과물
 https://youtu.be/C4UL-zqBvFU
-
-![endingillust (5)](https://user-images.githubusercontent.com/59721293/176052854-c9f98a2c-fe56-4700-9ba1-7f92752ff9bf.png)
